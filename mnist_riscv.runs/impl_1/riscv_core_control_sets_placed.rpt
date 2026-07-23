@@ -1,0 +1,268 @@
+Copyright 1986-2021 Xilinx, Inc. All Rights Reserved.
+---------------------------------------------------------------------------------------
+| Tool Version : Vivado v.2021.2 (win64) Build 3367213 Tue Oct 19 02:48:09 MDT 2021
+| Date         : Thu Jul 23 14:40:56 2026
+| Host         : stleraburg running 64-bit major release  (build 9200)
+| Command      : report_control_sets -verbose -file riscv_core_control_sets_placed.rpt
+| Design       : riscv_core
+| Device       : xc7z045
+---------------------------------------------------------------------------------------
+
+Control Set Information
+
+Table of Contents
+-----------------
+1. Summary
+2. Histogram
+3. Flip-Flop Distribution
+4. Detailed Control Set Information
+
+1. Summary
+----------
+
++----------------------------------------------------------+-------+
+|                          Status                          | Count |
++----------------------------------------------------------+-------+
+| Total control sets                                       |   190 |
+|    Minimum number of control sets                        |   190 |
+|    Addition due to synthesis replication                 |     0 |
+|    Addition due to physical synthesis replication        |     0 |
+| Unused register locations in slices containing registers |   354 |
++----------------------------------------------------------+-------+
+* Control sets can be merged at opt_design using control_set_merge or merge_equivalent_drivers
+** Run report_qor_suggestions for automated merging and remapping suggestions
+
+
+2. Histogram
+------------
+
++--------------------+-------+
+|       Fanout       | Count |
++--------------------+-------+
+| Total control sets |   190 |
+| >= 0 to < 4        |     1 |
+| >= 4 to < 6        |    13 |
+| >= 6 to < 8        |    40 |
+| >= 8 to < 10       |     5 |
+| >= 10 to < 12      |    33 |
+| >= 12 to < 14      |     0 |
+| >= 14 to < 16      |     0 |
+| >= 16              |    98 |
++--------------------+-------+
+* Control sets can be remapped at either synth_design or opt_design
+
+
+3. Flip-Flop Distribution
+-------------------------
+
++--------------+-----------------------+------------------------+-----------------+--------------+
+| Clock Enable | Synchronous Set/Reset | Asynchronous Set/Reset | Total Registers | Total Slices |
++--------------+-----------------------+------------------------+-----------------+--------------+
+| No           | No                    | No                     |             236 |          135 |
+| No           | No                    | Yes                    |               0 |            0 |
+| No           | Yes                   | No                     |             176 |           78 |
+| Yes          | No                    | No                     |            1174 |          265 |
+| Yes          | No                    | Yes                    |              33 |            8 |
+| Yes          | Yes                   | No                     |            3339 |         1187 |
++--------------+-----------------------+------------------------+-----------------+--------------+
+
+
+4. Detailed Control Set Information
+-----------------------------------
+
++------------------------+-------------------------------------------+--------------------------------------+------------------+----------------+--------------+
+|      Clock Signal      |               Enable Signal               |           Set/Reset Signal           | Slice Load Count | Bel Load Count | Bels / Slice |
++------------------------+-------------------------------------------+--------------------------------------+------------------+----------------+--------------+
+|  clk_div/inst/clk_out1 | program_counter/rocc_waiting_reg_0        |                                      |                1 |              1 |         1.00 |
+|  clk_div/inst/clk_out1 | program_counter/pc_out_reg[3]_rep_0[0]    | rst_debounce/reset                   |                1 |              4 |         4.00 |
+|  program_counter/E[0]  |                                           |                                      |                2 |              4 |         2.00 |
+|  clk_div/inst/clk_out1 | rocc_net/rx_loader/osamp_cnt              | rst_debounce/reset_0                 |                2 |              4 |         2.00 |
+|  clk_div/inst/clk_out1 | rocc_net/data_out_valid_3                 | rst_debounce/outValid_reg_0[0]       |                2 |              5 |         2.50 |
+|  clk_div/inst/clk_out1 | rocc_net/data_out_valid_3                 | rst_debounce/outValid_reg_1[0]       |                2 |              5 |         2.50 |
+|  clk_div/inst/clk_out1 | rocc_net/data_out_valid_3                 | rst_debounce/outValid_reg_2[0]       |                2 |              5 |         2.50 |
+|  clk_div/inst/clk_out1 | rocc_net/data_out_valid_3                 | rst_debounce/outValid_reg_6[0]       |                2 |              5 |         2.50 |
+|  clk_div/inst/clk_out1 | rocc_net/data_out_valid_3                 | rst_debounce/outValid_reg_3          |                3 |              5 |         1.67 |
+|  clk_div/inst/clk_out1 | rocc_net/data_out_valid_3                 | rst_debounce/outValid_reg_4[0]       |                2 |              5 |         2.50 |
+|  clk_div/inst/clk_out1 | rocc_net/data_out_valid_3                 | rst_debounce/outValid_reg_5[0]       |                3 |              5 |         1.67 |
+|  clk_div/inst/clk_out1 | rocc_net/data_out_valid_3                 | rst_debounce/outValid_reg[0]         |                2 |              5 |         2.50 |
+|  clk_div/inst/clk_out1 | rocc_net/data_out_valid_3                 | rst_debounce/outValid_reg_8[0]       |                2 |              5 |         2.50 |
+|  clk_div/inst/clk_out1 | rocc_net/data_out_valid_3                 | rst_debounce/outValid_reg_7[0]       |                2 |              5 |         2.50 |
+|  clk_div/inst/clk_out1 | rocc_net/data_out_valid_2                 | rocc_net/l3/n5/comboAdd_i_2__2_n_0   |                1 |              6 |         6.00 |
+|  clk_div/inst/clk_out1 | rocc_net/data_out_valid_2                 | rocc_net/l3/n3/sum[30]_i_1__0_n_0    |                3 |              6 |         2.00 |
+|  clk_div/inst/clk_out1 | rocc_net/data_out_valid_2                 | rocc_net/l3/n2/comboAdd_i_2__1_n_0   |                3 |              6 |         2.00 |
+|  clk_div/inst/clk_out1 | rocc_net/data_out_valid_1                 | rocc_net/l2/n10/sum[30]_i_1__8_n_0   |                2 |              6 |         3.00 |
+|  clk_div/inst/clk_out1 | rocc_net/data_out_valid_1                 | rocc_net/l2/n9/comboAdd_i_2__10_n_0  |                2 |              6 |         3.00 |
+|  clk_div/inst/clk_out1 | rocc_net/data_out_valid_1                 | rocc_net/l2/n8/sum[30]_i_1__7_n_0    |                2 |              6 |         3.00 |
+|  clk_div/inst/clk_out1 | rocc_net/data_out_valid_1                 | rocc_net/l2/n11/comboAdd_i_2__11_n_0 |                3 |              6 |         2.00 |
+|  clk_div/inst/clk_out1 | rocc_net/data_out_valid_1                 | rocc_net/l2/n14/comboAdd_i_3__21_n_0 |                3 |              6 |         2.00 |
+|  clk_div/inst/clk_out1 | rocc_net/data_out_valid_1                 | rocc_net/l2/n17/comboAdd_i_2__15_n_0 |                3 |              6 |         2.00 |
+|  clk_div/inst/clk_out1 | rocc_net/data_out_valid_2                 | rocc_net/l3/n1/sum[30]_i_1_n_0       |                3 |              6 |         2.00 |
+|  clk_div/inst/clk_out1 | rocc_net/data_out_valid_2                 | rocc_net/l3/n4/sum[30]_i_1__1_n_0    |                2 |              6 |         3.00 |
+|  clk_div/inst/clk_out1 | rocc_net/data_out_valid_2                 | rocc_net/l3/n0/clear                 |                3 |              6 |         2.00 |
+|  clk_div/inst/clk_out1 | rocc_net/data_out_valid_1                 | rocc_net/l2/n27/sum[30]_i_1__14_n_0  |                3 |              6 |         2.00 |
+|  clk_div/inst/clk_out1 | rocc_net/data_out_valid_1                 | rocc_net/l2/n13/comboAdd_i_2__13_n_0 |                3 |              6 |         2.00 |
+|  clk_div/inst/clk_out1 | rocc_net/data_out_valid_1                 | rocc_net/l2/n12/comboAdd_i_2__12_n_0 |                2 |              6 |         3.00 |
+|  clk_div/inst/clk_out1 | rocc_net/data_out_valid_1                 | rocc_net/l2/n18/sum[30]_i_1__10_n_0  |                4 |              6 |         1.50 |
+|  clk_div/inst/clk_out1 | rocc_net/data_out_valid_1                 | rocc_net/l2/n16/comboAdd_i_2__14_n_0 |                2 |              6 |         3.00 |
+|  clk_div/inst/clk_out1 | rocc_net/data_out_valid_1                 | rocc_net/l2/n15/sum[30]_i_1__9_n_0   |                4 |              6 |         1.50 |
+|  clk_div/inst/clk_out1 | rocc_net/data_out_valid_1                 | rocc_net/l2/n3/sum[30]_i_1__5_n_0    |                2 |              6 |         3.00 |
+|  clk_div/inst/clk_out1 | rocc_net/data_out_valid_1                 | rocc_net/l2/n2/comboAdd_i_2__6_n_0   |                2 |              6 |         3.00 |
+|  clk_div/inst/clk_out1 | rocc_net/data_out_valid_1                 | rocc_net/l2/n1/sum[30]_i_1__4_n_0    |                3 |              6 |         2.00 |
+|  clk_div/inst/clk_out1 | rocc_net/data_out_valid_1                 | rocc_net/l2/n0/comboAdd_i_3__20_n_0  |                3 |              6 |         2.00 |
+|  clk_div/inst/clk_out1 | rocc_net/data_out_valid_1                 | rocc_net/l2/n7/comboAdd_i_2__9_n_0   |                2 |              6 |         3.00 |
+|  clk_div/inst/clk_out1 | rocc_net/data_out_valid_1                 | rocc_net/l2/n6/sum[30]_i_1__6_n_0    |                2 |              6 |         3.00 |
+|  clk_div/inst/clk_out1 | rocc_net/data_out_valid_1                 | rocc_net/l2/n5/comboAdd_i_2__8_n_0   |                2 |              6 |         3.00 |
+|  clk_div/inst/clk_out1 | rocc_net/data_out_valid_1                 | rocc_net/l2/n4/comboAdd_i_2__7_n_0   |                2 |              6 |         3.00 |
+|  clk_div/inst/clk_out1 | rocc_net/data_out_valid_1                 | rocc_net/l2/n20/comboAdd_i_2__17_n_0 |                3 |              6 |         2.00 |
+|  clk_div/inst/clk_out1 | rocc_net/data_out_valid_1                 | rocc_net/l2/n19/comboAdd_i_2__16_n_0 |                3 |              6 |         2.00 |
+|  clk_div/inst/clk_out1 | rocc_net/data_out_valid_1                 | rocc_net/l2/n25/sum[30]_i_1__13_n_0  |                2 |              6 |         3.00 |
+|  clk_div/inst/clk_out1 | rocc_net/data_out_valid_1                 | rocc_net/l2/n24/comboAdd_i_2__19_n_0 |                2 |              6 |         3.00 |
+|  clk_div/inst/clk_out1 | rocc_net/data_out_valid_1                 | rocc_net/l2/n23/sum[30]_i_1__12_n_0  |                2 |              6 |         3.00 |
+|  clk_div/inst/clk_out1 | rocc_net/data_out_valid_1                 | rocc_net/l2/n22/sum[30]_i_1__11_n_0  |                3 |              6 |         2.00 |
+|  clk_div/inst/clk_out1 | rocc_net/data_out_valid_1                 | rocc_net/l2/n29/comboAdd_i_2__21_n_0 |                2 |              6 |         3.00 |
+|  clk_div/inst/clk_out1 | rocc_net/data_out_valid_1                 | rocc_net/l2/n28/sum[30]_i_1__15_n_0  |                3 |              6 |         2.00 |
+|  clk_div/inst/clk_out1 | rocc_net/data_out_valid_1                 | rocc_net/l2/n21/comboAdd_i_2__18_n_0 |                2 |              6 |         3.00 |
+|  clk_div/inst/clk_out1 | rocc_net/data_out_valid_1                 | rocc_net/l2/n26/comboAdd_i_2__20_n_0 |                3 |              6 |         2.00 |
+|  clk_div/inst/clk_out1 | rocc_net/data_out_valid_2                 | rocc_net/l3/n9/sum[30]_i_1__3_n_0    |                2 |              6 |         3.00 |
+|  clk_div/inst/clk_out1 | rocc_net/data_out_valid_2                 | rocc_net/l3/n8/comboAdd_i_2__4_n_0   |                3 |              6 |         2.00 |
+|  clk_div/inst/clk_out1 | rocc_net/data_out_valid_2                 | rocc_net/l3/n7/comboAdd_i_2__3_n_0   |                3 |              6 |         2.00 |
+|  clk_div/inst/clk_out1 | rocc_net/data_out_valid_2                 | rocc_net/l3/n6/sum[30]_i_1__2_n_0    |                2 |              6 |         3.00 |
+|  clk_div/inst/clk_out1 | rocc_net/p_in[14]_i_1_n_0                 |                                      |                1 |              8 |         8.00 |
+|  clk_div/inst/clk_out1 | rocc_net/rx_loader/shift_reg_0            | rst_debounce/reset_0                 |                1 |              8 |         8.00 |
+|  clk_div/inst/clk_out1 | rocc_net/rx_loader/data[7]_i_1_n_0        | rst_debounce/reset_0                 |                1 |              8 |         8.00 |
+|  clk_div/inst/clk_out1 | rocc_net/tx_trans/shift[7]_i_1_n_0        |                                      |                2 |              8 |         4.00 |
+|  clk_div/inst/clk_out1 | rocc_net/max_finder/E[0]                  | rst_debounce/reset_0                 |                2 |              8 |         4.00 |
+|  clk_div/inst/clk_out1 |                                           | rocc_net/l4/n0/muxValid_f_reg_0      |               10 |             10 |         1.00 |
+|  clk_div/inst/clk_out1 | rocc_net/w_addr                           | rst_debounce/reset_0                 |                4 |             10 |         2.50 |
+|  clk_div/inst/clk_out1 | rocc_net/pixel_valid                      | rst_debounce/outValid_reg_34         |                5 |             11 |         2.20 |
+|  clk_div/inst/clk_out1 | rocc_net/pixel_valid                      | rst_debounce/SR[0]                   |                4 |             11 |         2.75 |
+|  clk_div/inst/clk_out1 | rocc_net/tx_trans/E[0]                    | rst_debounce/reset_0                 |                4 |             11 |         2.75 |
+|  clk_div/inst/clk_out1 | rocc_net/pixel_valid                      | rst_debounce/outValid_reg_24         |                3 |             11 |         3.67 |
+|  clk_div/inst/clk_out1 | rocc_net/pixel_valid                      | rst_debounce/outValid_reg_11         |                5 |             11 |         2.20 |
+|  clk_div/inst/clk_out1 | rocc_net/pixel_valid                      | rst_debounce/outValid_reg_12         |                5 |             11 |         2.20 |
+|  clk_div/inst/clk_out1 | rocc_net/pixel_valid                      | rst_debounce/outValid_reg_13         |                5 |             11 |         2.20 |
+|  clk_div/inst/clk_out1 | rocc_net/pixel_valid                      | rst_debounce/outValid_reg_20         |                4 |             11 |         2.75 |
+|  clk_div/inst/clk_out1 | rocc_net/pixel_valid                      | rst_debounce/outValid_reg_22         |                5 |             11 |         2.20 |
+|  clk_div/inst/clk_out1 | rocc_net/pixel_valid                      | rst_debounce/outValid_reg_10         |                5 |             11 |         2.20 |
+|  clk_div/inst/clk_out1 | rocc_net/pixel_valid                      | rst_debounce/outValid_reg_16         |                4 |             11 |         2.75 |
+|  clk_div/inst/clk_out1 | rocc_net/pixel_valid                      | rst_debounce/outValid_reg_21         |                3 |             11 |         3.67 |
+|  clk_div/inst/clk_out1 | rocc_net/pixel_valid                      | rst_debounce/outValid_reg_23         |                5 |             11 |         2.20 |
+|  clk_div/inst/clk_out1 | rocc_net/pixel_valid                      | rst_debounce/outValid_reg_18         |                5 |             11 |         2.20 |
+|  clk_div/inst/clk_out1 | rocc_net/pixel_valid                      | rst_debounce/outValid_reg_15         |                4 |             11 |         2.75 |
+|  clk_div/inst/clk_out1 | rocc_net/pixel_valid                      | rst_debounce/outValid_reg_14         |                4 |             11 |         2.75 |
+|  clk_div/inst/clk_out1 | rocc_net/pixel_valid                      | rst_debounce/outValid_reg_17         |                4 |             11 |         2.75 |
+|  clk_div/inst/clk_out1 | rocc_net/pixel_valid                      | rst_debounce/outValid_reg_19         |                3 |             11 |         3.67 |
+|  clk_div/inst/clk_out1 | rocc_net/pixel_valid                      | rst_debounce/outValid_reg_27         |                4 |             11 |         2.75 |
+|  clk_div/inst/clk_out1 | rocc_net/pixel_valid                      | rst_debounce/outValid_reg_28         |                6 |             11 |         1.83 |
+|  clk_div/inst/clk_out1 | rocc_net/pixel_valid                      | rst_debounce/outValid_reg_35         |                3 |             11 |         3.67 |
+|  clk_div/inst/clk_out1 | rocc_net/pixel_valid                      | rst_debounce/outValid_reg_25         |                3 |             11 |         3.67 |
+|  clk_div/inst/clk_out1 | rocc_net/pixel_valid                      | rst_debounce/outValid_reg_29         |                4 |             11 |         2.75 |
+|  clk_div/inst/clk_out1 | rocc_net/pixel_valid                      | rst_debounce/outValid_reg_37         |                4 |             11 |         2.75 |
+|  clk_div/inst/clk_out1 | rocc_net/pixel_valid                      | rst_debounce/outValid_reg_36         |                4 |             11 |         2.75 |
+|  clk_div/inst/clk_out1 | rocc_net/pixel_valid                      | rst_debounce/outValid_reg_30         |                5 |             11 |         2.20 |
+|  clk_div/inst/clk_out1 | rocc_net/pixel_valid                      | rst_debounce/outValid_reg_26         |                5 |             11 |         2.20 |
+|  clk_div/inst/clk_out1 | rocc_net/pixel_valid                      | rst_debounce/outValid_reg_31         |                4 |             11 |         2.75 |
+|  clk_div/inst/clk_out1 | rocc_net/pixel_valid                      | rst_debounce/outValid_reg_32         |                4 |             11 |         2.75 |
+|  clk_div/inst/clk_out1 | rocc_net/pixel_valid                      | rst_debounce/outValid_reg_33         |                4 |             11 |         2.75 |
+|  clk_div/inst/clk_out1 | rocc_net/pixel_valid                      | rst_debounce/outValid_reg_9          |                5 |             11 |         2.20 |
+|  clk_div/inst/clk_out1 | rocc_net/l4/n0/outValid_reg_0             |                                      |                9 |             16 |         1.78 |
+|  clk_div/inst/clk_out1 | rocc_net/max_finder/maxValue[15]_i_1_n_0  |                                      |                2 |             16 |         8.00 |
+|  clk_div/inst/clk_out1 | rocc_net/tx_trans/baud_cnt_0              | rst_debounce/reset_0                 |                4 |             16 |         4.00 |
+|  clk_div/inst/clk_out1 | rst_debounce/cnt[0]_i_2_n_0               | rst_debounce/cnt[0]_i_1_n_0          |                6 |             22 |         3.67 |
+|  clk_div/inst/clk_out1 |                                           | rocc_net/l1/n0/muxValid_f_reg_0      |               30 |             30 |         1.00 |
+|  clk_div/inst/clk_out1 | rocc_net/l2/n0/mult_valid_reg_1           | rocc_net/l2/n3/sum[30]_i_1__5_n_0    |                9 |             31 |         3.44 |
+|  clk_div/inst/clk_out1 | rocc_net/l2/n0/mult_valid_reg_7           | rocc_net/l2/n22/sum[30]_i_1__11_n_0  |               10 |             31 |         3.10 |
+|  clk_div/inst/clk_out1 | rocc_net/l2/n0/mult_valid_reg_11          | rocc_net/l2/n28/sum[30]_i_1__15_n_0  |               10 |             31 |         3.10 |
+|  clk_div/inst/clk_out1 | rocc_net/l2/n0/mult_valid_reg_4           | rocc_net/l2/n10/sum[30]_i_1__8_n_0   |                8 |             31 |         3.88 |
+|  clk_div/inst/clk_out1 | rocc_net/l2/n0/mult_valid_reg_8           | rocc_net/l2/n23/sum[30]_i_1__12_n_0  |                9 |             31 |         3.44 |
+|  clk_div/inst/clk_out1 | rocc_net/l2/n0/mult_valid_reg_3           | rocc_net/l2/n8/sum[30]_i_1__7_n_0    |                9 |             31 |         3.44 |
+|  clk_div/inst/clk_out1 | rocc_net/l2/n0/mult_valid_reg_9           | rocc_net/l2/n25/sum[30]_i_1__13_n_0  |               10 |             31 |         3.10 |
+|  clk_div/inst/clk_out1 | rocc_net/l2/n0/mult_valid_reg_6           | rocc_net/l2/n18/sum[30]_i_1__10_n_0  |                8 |             31 |         3.88 |
+|  clk_div/inst/clk_out1 | rocc_net/l2/n0/mult_valid_reg_10          | rocc_net/l2/n27/sum[30]_i_1__14_n_0  |                8 |             31 |         3.88 |
+|  clk_div/inst/clk_out1 | rocc_net/l2/n0/mult_valid_reg_5           | rocc_net/l2/n15/sum[30]_i_1__9_n_0   |               11 |             31 |         2.82 |
+|  clk_div/inst/clk_out1 | rocc_net/l2/n0/mult_valid_reg_2           | rocc_net/l2/n6/sum[30]_i_1__6_n_0    |               10 |             31 |         3.10 |
+|  clk_div/inst/clk_out1 | rocc_net/l1/n0/mult_valid_reg_12          | rst_debounce/outValid_reg_22         |               10 |             31 |         3.10 |
+|  clk_div/inst/clk_out1 | rocc_net/l1/n0/mult_valid_reg_20          | rst_debounce/outValid_reg_30         |                9 |             31 |         3.44 |
+|  clk_div/inst/clk_out1 | rocc_net/l1/n0/mult_valid_reg_15          | rst_debounce/outValid_reg_25         |                9 |             31 |         3.44 |
+|  clk_div/inst/clk_out1 | rocc_net/l1/n0/mult_valid_reg_4           | rst_debounce/outValid_reg_14         |                9 |             31 |         3.44 |
+|  clk_div/inst/clk_out1 | rocc_net/l1/n0/mult_valid_reg_5           | rst_debounce/outValid_reg_15         |               11 |             31 |         2.82 |
+|  clk_div/inst/clk_out1 | rocc_net/l1/n0/mult_valid_reg_10          | rst_debounce/outValid_reg_20         |                8 |             31 |         3.88 |
+|  clk_div/inst/clk_out1 | rocc_net/l1/n0/mult_valid_reg_9           | rst_debounce/outValid_reg_19         |               10 |             31 |         3.10 |
+|  clk_div/inst/clk_out1 | rocc_net/l1/n0/mult_valid_reg_27          | rst_debounce/outValid_reg_37         |               10 |             31 |         3.10 |
+|  clk_div/inst/clk_out1 | rocc_net/l1/n0/mult_valid_reg_1           | rst_debounce/outValid_reg_11         |                8 |             31 |         3.88 |
+|  clk_div/inst/clk_out1 | rocc_net/l1/n0/mult_valid_reg_17          | rst_debounce/outValid_reg_27         |                9 |             31 |         3.44 |
+|  clk_div/inst/clk_out1 | rocc_net/l1/n0/mult_valid_reg_13          | rst_debounce/outValid_reg_23         |               12 |             31 |         2.58 |
+|  clk_div/inst/clk_out1 | rocc_net/l1/n0/mult_valid_reg_3           | rst_debounce/outValid_reg_13         |               10 |             31 |         3.10 |
+|  clk_div/inst/clk_out1 | rocc_net/l3/n0/mult_valid_reg_5           | rocc_net/l3/n6/sum[30]_i_1__2_n_0    |                8 |             31 |         3.88 |
+|  clk_div/inst/clk_out1 | rocc_net/l3/n0/mult_valid_reg_8           | rocc_net/l3/n9/sum[30]_i_1__3_n_0    |               10 |             31 |         3.10 |
+|  clk_div/inst/clk_out1 | rocc_net/l3/n0/mult_valid_reg_2           | rocc_net/l3/n3/sum[30]_i_1__0_n_0    |               11 |             31 |         2.82 |
+|  clk_div/inst/clk_out1 | rocc_net/l3/n0/mult_valid_reg_3           | rocc_net/l3/n4/sum[30]_i_1__1_n_0    |               11 |             31 |         2.82 |
+|  clk_div/inst/clk_out1 | rocc_net/l3/n0/mult_valid_reg_0           | rocc_net/l3/n1/sum[30]_i_1_n_0       |                9 |             31 |         3.44 |
+|  clk_div/inst/clk_out1 | rocc_net/l4/n0/mult_valid_reg_3           | rst_debounce/outValid_reg_3          |               11 |             31 |         2.82 |
+|  clk_div/inst/clk_out1 | rocc_net/l1/n0/mult_valid_reg_25          | rst_debounce/outValid_reg_35         |               10 |             31 |         3.10 |
+|  clk_div/inst/clk_out1 | rocc_net/l2/n0/mult_valid_reg_0           | rocc_net/l2/n1/sum[30]_i_1__4_n_0    |                9 |             31 |         3.44 |
+|  clk_div/inst/clk_out1 | rocc_net/l1/n0/mult_valid_reg_11[0]       | rst_debounce/outValid_reg_21         |               13 |             32 |         2.46 |
+|  clk_div/inst/clk_out1 | rocc_net/l1/n0/mult_valid_reg_19[0]       | rst_debounce/outValid_reg_29         |               11 |             32 |         2.91 |
+|  clk_div/inst/clk_out1 | rocc_net/max_finder/maxValue              | rocc_net/l4/n0/outValid_reg_0        |               15 |             32 |         2.13 |
+|  clk_div/inst/clk_out1 | rocc_net/max_finder/counter               | rocc_net/l4/n0/outValid_reg_0        |                8 |             32 |         4.00 |
+|  clk_div/inst/clk_out1 | rocc_net/l1/n0/mult_valid_reg_14[0]       | rst_debounce/outValid_reg_24         |               13 |             32 |         2.46 |
+|  clk_div/inst/clk_out1 | rocc_net/l2/n0/mult_valid_reg_14[0]       | rocc_net/l2/n5/comboAdd_i_2__8_n_0   |               10 |             32 |         3.20 |
+|  clk_div/inst/clk_out1 | rocc_net/l2/n0/mult_valid_reg_25[0]       | rocc_net/l2/n21/comboAdd_i_2__18_n_0 |               10 |             32 |         3.20 |
+|  clk_div/inst/clk_out1 | rocc_net/l2/n0/mult_valid_reg_28[0]       | rocc_net/l2/n29/comboAdd_i_2__21_n_0 |               12 |             32 |         2.67 |
+|  clk_div/inst/clk_out1 | rocc_net/l2/n0/mult_valid_reg_21[0]       | rocc_net/l2/n16/comboAdd_i_2__14_n_0 |               13 |             32 |         2.46 |
+|  clk_div/inst/clk_out1 | rocc_net/l2/n0/mult_valid_reg_20[0]       | rocc_net/l2/n14/comboAdd_i_3__21_n_0 |               13 |             32 |         2.46 |
+|  clk_div/inst/clk_out1 | rocc_net/l2/n0/mult_valid_reg_19[0]       | rocc_net/l2/n13/comboAdd_i_2__13_n_0 |               13 |             32 |         2.46 |
+|  clk_div/inst/clk_out1 | rocc_net/l2/n0/mult_valid_reg_23[0]       | rocc_net/l2/n19/comboAdd_i_2__16_n_0 |               12 |             32 |         2.67 |
+|  clk_div/inst/clk_out1 | rocc_net/l2/n0/mult_valid_reg_24[0]       | rocc_net/l2/n20/comboAdd_i_2__17_n_0 |               11 |             32 |         2.91 |
+|  clk_div/inst/clk_out1 | rocc_net/l2/n0/mult_valid_reg_27[0]       | rocc_net/l2/n26/comboAdd_i_2__20_n_0 |               13 |             32 |         2.46 |
+|  clk_div/inst/clk_out1 | rocc_net/l2/n0/mult_valid_reg_26[0]       | rocc_net/l2/n24/comboAdd_i_2__19_n_0 |                9 |             32 |         3.56 |
+|  clk_div/inst/clk_out1 | rocc_net/l2/n0/mult_valid_reg_12[0]       | rocc_net/l2/n2/comboAdd_i_2__6_n_0   |               12 |             32 |         2.67 |
+|  clk_div/inst/clk_out1 | rocc_net/l2/n0/mult_valid_reg_16[0]       | rocc_net/l2/n9/comboAdd_i_2__10_n_0  |               13 |             32 |         2.46 |
+|  clk_div/inst/clk_out1 | rocc_net/l2/n0/mult_valid_reg_22[0]       | rocc_net/l2/n17/comboAdd_i_2__15_n_0 |               10 |             32 |         3.20 |
+|  clk_div/inst/clk_out1 | rocc_net/l2/n0/mult_valid_reg_15[0]       | rocc_net/l2/n7/comboAdd_i_2__9_n_0   |               13 |             32 |         2.46 |
+|  clk_div/inst/clk_out1 | rocc_net/l2/n0/mult_valid_reg_17[0]       | rocc_net/l2/n11/comboAdd_i_2__11_n_0 |               10 |             32 |         3.20 |
+|  clk_div/inst/clk_out1 | rocc_net/l2/n0/mult_valid_reg_13[0]       | rocc_net/l2/n4/comboAdd_i_2__7_n_0   |               12 |             32 |         2.67 |
+|  clk_div/inst/clk_out1 | rocc_net/l2/n0/p_0_in                     | rocc_net/l2/n0/comboAdd_i_3__20_n_0  |               13 |             32 |         2.46 |
+|  clk_div/inst/clk_out1 | rocc_net/l1/n0/mult_valid_reg_21[0]       | rst_debounce/outValid_reg_31         |               11 |             32 |         2.91 |
+|  clk_div/inst/clk_out1 |                                           | rocc_net/count_3[0]_i_1_n_0          |                8 |             32 |         4.00 |
+|  clk_div/inst/clk_out1 |                                           | rocc_net/count_2[0]_i_1_n_0          |                8 |             32 |         4.00 |
+|  clk_div/inst/clk_out1 |                                           | rocc_net/count_1[0]_i_1_n_0          |                8 |             32 |         4.00 |
+|  clk_div/inst/clk_out1 | rocc_net/l1/n0/mult_valid_reg_18[0]       | rst_debounce/outValid_reg_28         |               12 |             32 |         2.67 |
+|  clk_div/inst/clk_out1 | rocc_net/l2/n0/mult_valid_reg_18[0]       | rocc_net/l2/n12/comboAdd_i_2__12_n_0 |               11 |             32 |         2.91 |
+|  clk_div/inst/clk_out1 | rocc_net/l4/n0/mult_valid_reg_1[0]        | rst_debounce/outValid_reg_1[0]       |               11 |             32 |         2.91 |
+|  clk_div/inst/clk_out1 | rocc_net/l4/n0/mult_valid_reg_4[0]        | rst_debounce/outValid_reg_4[0]       |               11 |             32 |         2.91 |
+|  clk_div/inst/clk_out1 | rocc_net/l4/n0/mult_valid_reg_7[0]        | rst_debounce/outValid_reg_7[0]       |               12 |             32 |         2.67 |
+|  clk_div/inst/clk_out1 | rocc_net/l4/n0/mult_valid_reg_8[0]        | rst_debounce/outValid_reg_8[0]       |               11 |             32 |         2.91 |
+|  clk_div/inst/clk_out1 | rocc_net/l4/n0/mult_valid_reg_5[0]        | rst_debounce/outValid_reg_5[0]       |               11 |             32 |         2.91 |
+|  clk_div/inst/clk_out1 | rocc_net/l4/n0/mult_valid_reg_2[0]        | rst_debounce/outValid_reg_2[0]       |               13 |             32 |         2.46 |
+|  clk_div/inst/clk_out1 | rocc_net/l4/n0/mult_valid_reg_6[0]        | rst_debounce/outValid_reg_6[0]       |               10 |             32 |         3.20 |
+|  clk_div/inst/clk_out1 | rocc_net/l4/n0/p_0_in                     | rst_debounce/outValid_reg[0]         |               12 |             32 |         2.67 |
+|  clk_div/inst/clk_out1 | rocc_net/l3/n0/mult_valid_reg_4[0]        | rocc_net/l3/n5/comboAdd_i_2__2_n_0   |               15 |             32 |         2.13 |
+|  clk_div/inst/clk_out1 | rocc_net/l1/n0/mult_valid_reg_16[0]       | rst_debounce/outValid_reg_26         |               12 |             32 |         2.67 |
+|  clk_div/inst/clk_out1 | rocc_net/l3/n0/mult_valid_reg_7[0]        | rocc_net/l3/n8/comboAdd_i_2__4_n_0   |               12 |             32 |         2.67 |
+|  clk_div/inst/clk_out1 | rocc_net/l3/n0/mult_valid_reg_1[0]        | rocc_net/l3/n2/comboAdd_i_2__1_n_0   |               11 |             32 |         2.91 |
+|  clk_div/inst/clk_out1 | rocc_net/l3/n0/mult_valid_reg_6[0]        | rocc_net/l3/n7/comboAdd_i_2__3_n_0   |               10 |             32 |         3.20 |
+|  clk_div/inst/clk_out1 | rocc_net/l3/n0/p_0_in_0                   | rocc_net/l3/n0/clear                 |               13 |             32 |         2.46 |
+|  clk_div/inst/clk_out1 | rocc_net/l1/n0/E[0]                       | rst_debounce/outValid_reg_9          |               12 |             32 |         2.67 |
+|  clk_div/inst/clk_out1 | rocc_net/l1/n0/p_0_in                     | rst_debounce/SR[0]                   |               13 |             32 |         2.46 |
+|  clk_div/inst/clk_out1 | rocc_net/l1/n0/mult_valid_reg_26[0]       | rst_debounce/outValid_reg_36         |               12 |             32 |         2.67 |
+|  clk_div/inst/clk_out1 | rocc_net/l1/n0/mult_valid_reg_23[0]       | rst_debounce/outValid_reg_33         |               13 |             32 |         2.46 |
+|  clk_div/inst/clk_out1 | rocc_net/l1/n0/mult_valid_reg_22[0]       | rst_debounce/outValid_reg_32         |               11 |             32 |         2.91 |
+|  clk_div/inst/clk_out1 | rocc_net/l1/n0/mult_valid_reg_6[0]        | rst_debounce/outValid_reg_16         |               12 |             32 |         2.67 |
+|  clk_div/inst/clk_out1 | rocc_net/l1/n0/mult_valid_reg_8[0]        | rst_debounce/outValid_reg_18         |               11 |             32 |         2.91 |
+|  clk_div/inst/clk_out1 | rocc_net/l4/n0/mult_valid_reg_0[0]        | rst_debounce/outValid_reg_0[0]       |               12 |             32 |         2.67 |
+|  clk_div/inst/clk_out1 | rocc_net/l1/n0/mult_valid_reg_24[0]       | rst_debounce/outValid_reg_34         |               12 |             32 |         2.67 |
+|  clk_div/inst/clk_out1 | rocc_net/l1/n0/mult_valid_reg_7[0]        | rst_debounce/outValid_reg_17         |               12 |             32 |         2.67 |
+|  clk_div/inst/clk_out1 | rocc_net/l1/n0/mult_valid_reg_0[0]        | rst_debounce/outValid_reg_10         |               11 |             32 |         2.91 |
+|  clk_div/inst/clk_out1 | rocc_net/l1/n0/mult_valid_reg_2[0]        | rst_debounce/outValid_reg_12         |               12 |             32 |         2.67 |
+|  clk_div/inst/clk_out1 | program_counter/p_0_in                    | rst_debounce/reset                   |                8 |             33 |         4.12 |
+|  clk_div/inst/clk_out1 | rocc_net/max_finder/o_data_valid_reg_3[0] | rst_debounce/reset_0                 |               15 |             35 |         2.33 |
+|  clk_div/inst/clk_out1 |                                           | rst_debounce/reset_0                 |               14 |             40 |         2.86 |
+|  clk_div/inst/clk_out1 | rocc_net/rocc_net/p_0_in__0               |                                      |                7 |             52 |         7.43 |
+|  clk_div/inst/clk_out1 | rocc_net/l3/n0/siginst.sigmoid/holdData_3 |                                      |               23 |            148 |         6.43 |
+|  clk_div/inst/clk_out1 |                                           |                                      |              133 |            232 |         1.74 |
+|  clk_div/inst/clk_out1 | rocc_net/l2/n0/siginst.sigmoid/holdData_2 |                                      |               74 |            468 |         6.32 |
+|  clk_div/inst/clk_out1 | rst_debounce/reset0                       |                                      |              153 |            509 |         3.33 |
++------------------------+-------------------------------------------+--------------------------------------+------------------+----------------+--------------+
+
+

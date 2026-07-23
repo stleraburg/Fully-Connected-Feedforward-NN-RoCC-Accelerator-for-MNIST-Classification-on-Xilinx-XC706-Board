@@ -1,0 +1,41 @@
+# compile verilog/system verilog design source files
+verilog xil_defaultlib  --include "../../../../mnist_riscv.srcs/sources_1/imports/new" --include "../../../../mnist_riscv.gen/sources_1/ip/clk_wiz_0" \
+"../../../../mnist_riscv.srcs/sources_1/imports/new/ALU.v" \
+"../../../../mnist_riscv.srcs/sources_1/imports/new/ALU_control.v" \
+"../../../../mnist_riscv.srcs/sources_1/imports/new/AND_gate.v" \
+"../../../../mnist_riscv.srcs/sources_1/imports/new/OR_gate.v" \
+"../../../../mnist_riscv.srcs/sources_1/imports/new/ReLU.v" \
+"../../../../mnist_riscv.srcs/sources_1/imports/new/adder.v" \
+"../../../../mnist_riscv.srcs/sources_1/imports/new/control_unit.v" \
+"../../../../mnist_riscv.srcs/sources_1/imports/new/data_memory.v" \
+"../../../../mnist_riscv.srcs/sources_1/imports/new/fcnn.v" \
+"../../../../mnist_riscv.srcs/sources_1/imports/new/hardmax.v" \
+"../../../../mnist_riscv.srcs/sources_1/imports/new/imm_gen.v" \
+"../../../../mnist_riscv.srcs/sources_1/imports/new/layer1.v" \
+"../../../../mnist_riscv.srcs/sources_1/imports/new/layer2.v" \
+"../../../../mnist_riscv.srcs/sources_1/imports/new/layer3.v" \
+"../../../../mnist_riscv.srcs/sources_1/imports/new/layer4.v" \
+"../../../../mnist_riscv.srcs/sources_1/imports/new/mux1.v" \
+"../../../../mnist_riscv.srcs/sources_1/imports/new/mux2.v" \
+"../../../../mnist_riscv.srcs/sources_1/imports/new/mux3.v" \
+"../../../../mnist_riscv.srcs/sources_1/imports/new/mux4.v" \
+"../../../../mnist_riscv.srcs/sources_1/imports/new/mux5.v" \
+"../../../../mnist_riscv.srcs/sources_1/imports/new/mux6.v" \
+"../../../../mnist_riscv.srcs/sources_1/imports/new/mux7.v" \
+"../../../../mnist_riscv.srcs/sources_1/imports/new/neuron.v" \
+"../../../../mnist_riscv.srcs/sources_1/imports/new/program_counter.v" \
+"../../../../mnist_riscv.srcs/sources_1/imports/new/reg_file.v" \
+"../../../../mnist_riscv.srcs/sources_1/imports/new/riscv_core.v" \
+"../../../../mnist_riscv.srcs/sources_1/imports/new/rocc_if.v" \
+"../../../../mnist_riscv.srcs/sources_1/imports/new/scratchpad_mem.v" \
+"../../../../mnist_riscv.srcs/sources_1/imports/new/sigROM.v" \
+"../../../../mnist_riscv.srcs/sources_1/imports/new/uart_rx.v" \
+"../../../../mnist_riscv.srcs/sources_1/imports/new/uart_tx.v" \
+"../../../../mnist_riscv.srcs/sources_1/imports/new/weight_memory.v" \
+"../../../../mnist_riscv.srcs/sim_1/imports/new/tb_riscv_rx.v" \
+
+# compile glbl module
+verilog xil_defaultlib "glbl.v"
+
+# Do not sort compile order
+nosort

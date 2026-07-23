@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wave_config>
+   <wave_state>
+   </wave_state>
+   <db_ref_list>
+      <db_ref path="tb_riscv_rx_behav.wdb" id="1">
+         <top_modules>
+            <top_module name="glbl" />
+            <top_module name="tb_riscv_rx" />
+         </top_modules>
+      </db_ref>
+   </db_ref_list>
+   <zoom_setting>
+      <ZoomStartTime time="7,779.905000 us"></ZoomStartTime>
+      <ZoomEndTime time="8,195.405001 us"></ZoomEndTime>
+      <Cursor1Time time="7,863.905000 us"></Cursor1Time>
+   </zoom_setting>
+   <column_width_setting>
+      <NameColumnWidth column_width="133"></NameColumnWidth>
+      <ValueColumnWidth column_width="67"></ValueColumnWidth>
+   </column_width_setting>
+   <WVObjectSize size="16" />
+   <wvobject fp_name="/tb_riscv_rx/clk" type="logic">
+      <obj_property name="ElementShortName">clk</obj_property>
+      <obj_property name="ObjectShortName">clk</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_riscv_rx/reset" type="logic">
+      <obj_property name="ElementShortName">reset</obj_property>
+      <obj_property name="ObjectShortName">reset</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_riscv_rx/cpu/rx" type="logic">
+      <obj_property name="ElementShortName">rx</obj_property>
+      <obj_property name="ObjectShortName">rx</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_riscv_rx/cpu/tx" type="logic">
+      <obj_property name="ElementShortName">tx</obj_property>
+      <obj_property name="ObjectShortName">tx</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_riscv_rx/cpu/result" type="array">
+      <obj_property name="ElementShortName">result[3:0]</obj_property>
+      <obj_property name="ObjectShortName">result[3:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_riscv_rx/cpu/pc" type="array">
+      <obj_property name="ElementShortName">pc[31:0]</obj_property>
+      <obj_property name="ObjectShortName">pc[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_riscv_rx/cpu/resp_valid" type="logic">
+      <obj_property name="ElementShortName">resp_valid</obj_property>
+      <obj_property name="ObjectShortName">resp_valid</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_riscv_rx/cpu/resp_data" type="array">
+      <obj_property name="ElementShortName">resp_data[31:0]</obj_property>
+      <obj_property name="ObjectShortName">resp_data[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_riscv_rx/cpu/rocc_net/im_count" type="array">
+      <obj_property name="ElementShortName">im_count[2:0]</obj_property>
+      <obj_property name="ObjectShortName">im_count[2:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_riscv_rx/cpu/instruction" type="array">
+      <obj_property name="ElementShortName">instruction[31:0]</obj_property>
+      <obj_property name="ObjectShortName">instruction[31:0]</obj_property>
+      <obj_property name="Radix">BINARYRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_riscv_rx/cpu/rocc_net/w_addr" type="array">
+      <obj_property name="ElementShortName">w_addr[9:0]</obj_property>
+      <obj_property name="ObjectShortName">w_addr[9:0]</obj_property>
+      <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_riscv_rx/cpu/rocc_net/r_addr" type="array">
+      <obj_property name="ElementShortName">r_addr[10:0]</obj_property>
+      <obj_property name="ObjectShortName">r_addr[10:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_riscv_rx/cpu/rocc_net/state_m" type="array">
+      <obj_property name="ElementShortName">state_m[1:0]</obj_property>
+      <obj_property name="ObjectShortName">state_m[1:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_riscv_rx/cpu/rocc_net/tx_data" type="array">
+      <obj_property name="ElementShortName">tx_data[7:0]</obj_property>
+      <obj_property name="ObjectShortName">tx_data[7:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_riscv_rx/cpu/rocc_net/tx_done" type="logic">
+      <obj_property name="ElementShortName">tx_done</obj_property>
+      <obj_property name="ObjectShortName">tx_done</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_riscv_rx/cpu/rocc_net/tx_start" type="logic">
+      <obj_property name="ElementShortName">tx_start</obj_property>
+      <obj_property name="ObjectShortName">tx_start</obj_property>
+   </wvobject>
+</wave_config>
