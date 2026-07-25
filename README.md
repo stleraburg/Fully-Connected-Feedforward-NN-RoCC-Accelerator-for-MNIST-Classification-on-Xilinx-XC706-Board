@@ -51,16 +51,145 @@ The formula that was used to convert the weights into 16-bit two's-complement in
 * $w1 = 4.190466417866504 > 0 $, so $w1_{int} = round(4.190466417866504 \cdot 2^{12}) = 17164 (binary: 0b 0100001100001100)$, re-quantizing: $17164 / 2^12 = 4.190429688$, error = $0.00003672986$. 
 * $w2 = -3.3706570861002216 < 0 $, so $w2_{int} = 2^{16} - round(3.3706570861002216 \cdot 2^{12}) = 51730 (binary: 0b 1100101000010010)$, re-quantizing: $-(2^{16} - 51730) / 2^{12} = -3.370605469$, error = $0.0000516171$. 
 
-<img width="4544" height="1363" alt="RISC-V CPU (1)" src="https://github.com/user-attachments/assets/b29292b2-1333-450e-89f1-cbff2a132c3a" />
+<img width="5575" height="1647" alt="RISC-V CPU (4)" src="https://github.com/user-attachments/assets/bf70a7ac-e1bb-4f93-a3b6-c75ee851ffe5" />
 
 The MAC unit computes the products of the 16-bit input activation and the corresponding 16-bit weight and accumulates them into a 32-bit register. When the last input has been processed through mac, the bias is added, and the result is passed to the activation function.
 
 **Sigmoid Activation**
-The sigmoid is a nonlinear function whose direct evaluation would require an exponential and a division — costly in area and latency on programmable logic. Instead, the function is precomputed and stored as a lookup table in ROM within each neuron. The 32-bit accumulator output is requantized to form the table address by taking its ten most significant bits, sum[31:22]. This slice retains the five integer bits and five fractional bits of the Q5.27 accumulator, producing a Q5.5 value spanning −16 to +15.96875 with a resolution of $2^{-5} = 0.03125$. The $2^{10} = 1024$ addresses therefore sample the sigmoid input axis at 1024 uniformly spaced points across this range. Each entry stores the sigmoid of its corresponding input in 16-bit Q1.15 format: address 0 holds $\sigma (-16) \approx 0$, address 512 holds $\sigma (0) \approx 0.5$, and address 1023 holds $\sigma (15.97) \approx 1$. The lookup therefore performs both the nonlinearity and the reduction from the 32-bit accumulator format back to the 16-bit activation format in a single memory access.
+Many NNs use nonlinear functions such as sigmoid or hyperbolic tangent as activation functions. However, building the digital circuits that generate these functions is very challenging and resourse intensive. Instead, we generally pre-calculate their values (since we will be aware of range of the input) ans store them in ROM as a lookup table using FPGA's distributed RAM (asynchronous reading). The sum, which is the result of multiply-accumulate operation plus bias, is directly fed into the sigmoid lookup table.  However, because the sum is 32-bit value (multiplication of 2 16-bit values - input and weight - results in double-sized bits value), feeding all the bits would require a formidable memory depth ($2^{32}$). That is why we take only some most significant bits of the sum to define the depth of the sigmoid memory. 
+
+For this, we pass the sum with a new quantization format of Qm.n, where m is calculated as (num of weight integer bits + num of input integer bits), and n is (sigmoid memory depth - m). For example, if sigmoid size is 10 and we keep the number of weight and input integer bits as 4 and 1, respectively, the Q-format of the passed value will be Q5.5. This number should represent the *address* at the sigmoid memory which holds the precomputed sigmoid value of the real input. Because the sum is a signed number, meaning it can be either positive or negative, and the address can be only positive, we need to convert the two's complement to binary offset by flipping the MSB. So, a new axis with remapped monotonically ascending addresses is used to access the corresponding sigmoid values. For example, if the sum is -1.473 (real value), then its integer value in Q5.5 is -47 (or 977), or in binary 0b 1111010001. To get the address, we flip the MSB and get 0b 0111010001, which corresponds to address 465. The value of the sigmoid at this address is 0b 0.001110100110100, or 0.228.
+
+<img width="5540" height="3109" alt="RISC-V CPU (5)" src="https://github.com/user-attachments/assets/7ae6445c-124a-4327-866f-6210dbf2f809" />
+
+The sigmoid lookup table was generated using the following Python script:
+
+```python
+def DtoB(num,dataWidth,fracBits): #funtion for converting into two's complement format
+    if num >= 0:
+        num = num * (2**fracBits)
+        num = int(num)
+        e = bin(num)[2:]
+    else:
+        num = -num
+        num = num * (2**fracBits)#number of fractional bits
+        num = int(num)
+        if num == 0:
+            d = 0
+        else:
+            d = 2**dataWidth - num
+        e = bin(d)[2:]
+    return e
+
+def genSigContent(dataWidth,sigmoidSize,weightIntSize,inputIntSize):
+    f = open("sigContent.mif","w")
+    fractBits = sigmoidSize-(weightIntSize+inputIntSize) 
+    if fractBits < 0: # Sigmoid size is smaller the integer part of the MAC operation
+        fractBits = 0
+    x = -2**(weightIntSize+inputIntSize-1) # Smallest input going to the Sigmoid LUT from the neuron
+    for i in range(0,2**sigmoidSize):
+        y = sigmoid(x)
+        z = DtoB(y,dataWidth,dataWidth-inputIntSize)
+        f.write(z+'\n')
+        x=x+(2**-fractBits)
+    f.close()
+    
+def sigmoid(x):
+    try:
+        return 1 / (1+math.exp(-x)) #for x less than -1023 will give value error
+    except:
+        return 0
+```
 
 ## Instruction and Data Memories 
+The RISC-V CPU coordinates the accelerator by sending custom instructions via RoCC interface. 
+
+
 
 ## Simulation 
+
+In simulation, I imitate images transmission via UART. Specifically, 3 images, representing 7,8, and 9 digits, were uploaded as ROM and sent byte-by-byte to the private memory of the NN accelerator for furhter inference. The CPU 
+
+```verilog
+`timescale 1ns / 1ps
+
+module tb_riscv_rx;
+
+parameter CLK_PERIOD = 10; // 100MHz 
+parameter CLKS_PER_BIT = 100; // 1_000_000 baud at 100MHz (for simulation, in real - 115200 baud)
+parameter BIT_PERIOD = CLK_PERIOD * CLKS_PER_BIT; // ns per bit 
+
+reg [7:0] im1 [783:0];
+reg [7:0] im2 [783:0];
+reg [7:0] im3 [783:0];
+integer k;
+
+reg clk = 0;
+reg reset = 1;
+reg rx = 1; // idle high 
+wire [3:0] num_correct;
+
+riscv_core #(.IMEM_INIT_FILE("mnist.mem")) cpu (.clk(clk), .reset(reset), .rx(rx), .result(num_correct));
+
+always #(CLK_PERIOD/2) clk = ~clk;
+
+// ---- Task: send one pixel over serial line ----
+task send_pixel;
+    input [7:0] byte_in;
+    integer i;
+    begin 
+        rx = 1'b0;
+        #(BIT_PERIOD);
+        for (i=0; i<8; i=i+1) begin 
+            rx = byte_in[i];
+            #(BIT_PERIOD);
+        end
+        rx = 1'b1;
+        #(BIT_PERIOD);
+    end
+endtask
+
+// ---- Stimulus ----
+initial begin 
+    $dumpfile("tb_riscv_rx.vcd");
+    $dumpvars(0, tb_riscv_rx);
+    
+    // test images (3 for now)
+    $readmemb("im1.txt", im1);
+    $readmemb("im2.txt", im2);
+    $readmemb("im3.txt", im3);
+    
+    // reset 
+    @(posedge clk);
+    reset = 1;
+    repeat(10) @(posedge clk);
+    reset = 0;
+    #(BIT_PERIOD); // idle gap 
+    
+    for (k=0; k<784; k=k+1) send_pixel(im1[k]);
+    @(posedge cpu.rocc_net.tx_done);
+    for (k=0; k<784; k=k+1) send_pixel(im2[k]);
+    @(posedge cpu.rocc_net.tx_done);
+    for (k=0; k<784; k=k+1) send_pixel(im3[k]);
+    @(posedge cpu.rocc_net.tx_done);
+    repeat(100) @(posedge clk);
+
+     $finish;    
+end
+
+endmodule
+```
+
+The result:
+
+`Detected number:          7.`
+
+`Detected number:          8.`
+
+`Detected number:          9.`
+
+<img width="1047" height="641" alt="1fc18e6a-384b-470c-89bb-f070bbfbd2df" src="https://github.com/user-attachments/assets/91fe507c-80c6-4fe3-802a-141d5b4b18ac" />
+
 
 ## Hardware Implementation
 
@@ -73,4 +202,7 @@ The sigmoid is a nonlinear function whose direct evaluation would require an exp
 ### Resource Utilization
 
 ### Accuracy 
+
+## Acknowledgements
+I would like to mention [Vipin Kizheppatt's tutrorials](https://github.com/vipinkmenon/neuralNetwork) and the [courses by EcrioniX](https://ecrionix.org/) that I used to develop this project.
 
