@@ -101,10 +101,6 @@ def sigmoid(x):
         return 0
 ```
 
-## Instruction and Data Memories 
-The RISC-V CPU coordinates the accelerator by sending custom instructions via RoCC interface. 
-
-
 
 ## Simulation 
 
@@ -190,8 +186,177 @@ The result:
 
 <img width="1047" height="641" alt="1fc18e6a-384b-470c-89bb-f070bbfbd2df" src="https://github.com/user-attachments/assets/91fe507c-80c6-4fe3-802a-141d5b4b18ac" />
 
+## Instruction and Data Memories 
+The RISC-V CPU coordinates the accelerator by sending custom instructions via RoCC interface. To test the correctness of the NN accelerator working, the following instructions have been loaded to the CPU's instruction memory. Specifically, the CPU constantly sends READ_RESULT custom instructions and waits for the accelerator to load the test image and produce the inference result. When the result is ready, the CPU consumes it and stores it in the datamemory at a specific memory address. This address ($0x8000_0000$) is decoded as a memory-mapped output register. The data memory module checks if the store instructions operates on this address by checking the MSB (it should be "1"), and if so, it drives the lower four bits of the written value onto the GPIO LEDs, displaying the classified digit on the boar:
+
+```verilog
+else if (mem_write) begin 
+     mem[address[9:2]] <= write_data;
+     if (address[31] == 1'b1) begin 
+         led_result <= write_data[3-:4]; // just a fancy way to write [3:0]
+     end
+end
+```
+
+The assembly (program.S) test program: 
+```assembly
+li   x19, 0x80000000      # address that drives the LEDs (bit 31 set)
+loop:
+    custom0 x22, x0, x0, 5    # READ_RESULT → x22
+    sw   x22, 0(x19)           # store result TO the LED address
+    j    loop
+
+```
+
+and the corresponding binary code in $readmemb format:
+```
+10000000000000000000100110110111
+00000010000000000011101100001011
+00000001011010011010000000100011
+11111111100111111111000001101111
+```
 
 ## Hardware Implementation
+To send the images from the host PC to the FPGA via UART, I wrote the following Python script:
+
+```python
+import serial
+import time
+import sys
+import os
+import glob
+import tkinter as tk
+from functools import partial
+from PIL import Image, ImageTk
+import numpy as np
+import random
+import math
+from tkinter import messagebox
+import time
+
+#-------Configuration----------------
+PORT = "COM3"
+BAUD = 115200
+IMAGE_SIZE = 784
+NUM_IMAGES = 25
+RESULT_TIMEOUT = 10
+THUMB = 100
+FILE_PATTERN = "*.txt"
+
+def load_pixels(path):
+    pixels = []
+    with open(path, 'r') as f:
+        for line in f:
+            line = line.strip()
+            if (len(pixels) >= IMAGE_SIZE):
+                break 
+            val_16 = int(line, 2)
+            pixels.append((val_16 >> 7) & 0xFF)
+        if (len(pixels) != IMAGE_SIZE):
+            raise ValueError(f"{path}: got {len(pixels)} pixels, expected {IMAGE_SIZE}")
+   return pixels
+
+def make_photo(pixels, size=THUMB):
+    arr = np.array(pixels, dtype=np.uint8).reshape(28,28)
+    pil =  Image.fromarray(arr, mode='L').resize((size,size), Image.NEAREST)
+    return ImageTk.PhotoImage(pil)
+
+def send_image(ser, pixels, index):
+    if ser is None:
+        return None
+    ser.reset_input_buffer()
+    ser.write(bytes(pixels))
+    ser.flush()
+    ser.timeout = RESULT_TIMEOUT
+    result = ser.read(1)
+    
+    digit  = result[0]
+    
+    print(f"image{index}: digit={digit}")
+    return digit
+
+class DigitGUI:
+    def __init__(self, root, files, ser) :
+        self.root = root
+        self.ser = ser
+        self.photos = []
+        self.pixel_sets = []
+        self.result_labels = []
+
+        root.title("MNIST over UART - click an image to classify")
+
+        n = len(files)
+        cols = math.ceil(math.sqrt(n)) # 25 -> 3x3
+        rows = math.ceil(n / cols)
+
+        for r in range(rows):
+            root.rowconfigure(r*2, weight=1)
+            root.rowconfigure(r*2+1, weight = 0)
+        for c in range(cols):
+            root.rowconfigure(c, weight=1)
+        for i, path in enumerate(files):
+            r,c = divmod(i, cols)
+            pixels = load_pixels(path)
+            photo = make_photo(pixels)
+            self.pixel_sets.append(pixels)
+            self.photos.append(photo)
+            btn = tk.Button(root, image=photo, command=partial(self.on_click, i), borderwidth=2, relief="groove")
+            btn.grid(row=r*2, column=c, padx=5, pady=(5,0), sticky="nsew")
+            
+            lbl = tk.Label(root, text="", font=("Arial", 9))
+            lbl.grid(row=r*2+1, column=c, padx=5, pady=(0,5))
+            self.result_labels.append(lbl)
+
+    def on_click(self, index):
+            pixels = self.pixel_sets[index] # the bytes behind this button
+            if self.ser is None:
+                messagebox.showwarning("No serial port", "Serial port not open - cannot send.")
+                return 
+            self.result_labels[index].config(text="sending...", fg="black")
+            self.root.update_idletasks() #refresh before blocking
+            digit = send_image(self.ser, pixels, index)
+            if digit is None:
+                self.result_labels[index].config(text="TIMEOUT", fg="red")
+            else:
+                self.result_labels[index].config(text=f"Predicted: {digit}", fg="green")
+
+
+image_dir = "/testData"
+img_files = sorted(glob.glob(os.path.join(image_dir, FILE_PATTERN)))
+if not img_files:
+    print(f"No files matching {FILE_PATTERN} in {image_dir}")
+    sys.exit(1)
+k = min(NUM_IMAGES, len(img_files))
+files = random.sample(img_files, k)
+print(f"Showing {k} random images from {image_dir}")
+
+try:
+    ser = serial.Serial(PORT, BAUD, timeout=RESULT_TIMEOUT)
+    print(f"Opened {PORT} at {BAUD} baud")
+except Exception as e:
+    print(f"WARNING: could not open {PORT}: e")
+    ser = None
+
+root = tk.Tk()
+gui = DigitGUI(root, files, ser)
+try:
+    root.mainloop()
+finally:
+    if ser is not None:
+        ser.close()
+        print("Port closed.")
+
+```
+
+This creates a custom GUI, displaying a 5x5 matrix of random images from test dataset using the *tkinter package* . By clicking an image in the grid, the PC transmits 784 pixel values (1 byte each) serially over a UART-USB converter to the ZC706 board at 115200 baud. In return, the FPGA sends the inferred result back, together with displaying it on the GPIO LEDs. 
+
+<img width="291" height="355" alt="image" src="https://github.com/user-attachments/assets/9db91751-097a-4a9f-a6bd-09bcd5600913" />
+
+As for the hardware, I used differential system clock of 200MHz as a main clock source and fed it to the clocking wizard IP to halve the frequency and, thus, meet the timing requirements. In the constraints file, the four least significant bits of the *result* signal are mapped to the on-board LED pins, and the UART rx and tx signals are routed to the PMOD1 header (J58). To establish the physical connection between the host PC and FPGA board, I used UART-USB converter and connected the common ground and well as the crossed tx and rx pins. 
+
+The LEDs display the digit "9" in binary "1001".
+
+<img width="192" height="256" alt="image" src="https://github.com/user-attachments/assets/7297687f-3f86-4fe7-9a2d-ab05caecaa35" />
 
 ## Performance Evaluation
 
