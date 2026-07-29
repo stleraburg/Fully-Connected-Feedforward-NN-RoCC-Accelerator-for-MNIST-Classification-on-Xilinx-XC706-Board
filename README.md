@@ -359,10 +359,59 @@ The LEDs display the digit "9" in binary "1001".
 <img width="192" height="256" alt="image" src="https://github.com/user-attachments/assets/7297687f-3f86-4fe7-9a2d-ab05caecaa35" />
 
 ## Performance Evaluation
+### Parallelism in FPGA vs GPU
+GPU (Graphical processing unit) is a specialized processor that features high parallelism (unlike CPU that is optimized for sequenctial and branching workloads) by handling large number of inputs simultaneously. One of its main applications is running neural networks. The underlying operations of a NN are the matrix and tensor multiplications, which are computationally intensive workloads. GPU's architecture is designed to handle these operations in an efficient way using their multiple cores, doing thousands of identical operations simultaneously. Unlike the implemented FPGA NN accelerator, the GPU takes the input data (in this case, images) *in batches*. For example, if we feed 10,000 images (the batch size) to the 784-30-30-10-10 network, the first (and largest) layer turns into a single large matrix multiplication: the $784 \cdot 30$ weight matrix multiplied by a $784 \cdot 10,000$ input matrix, comprising $784 \cdot 30 \cdot 10,000 \approx 235 million$ MAC operations executed in a highly parallel manner across the GPU's cores. Batching this way keeps a large fraction of the cores busy, amortizing the fixed per-launch overhead over many images. 
+
+The FPGA accelerator operates differently. Its datapath is spatially specialized at design time to process a single image's data stream through fixed, parallel MAC units — one physical multiplier per neuron. It therefore processes one image at a time rather than in batches. Therefore, the parallelism in FPGA is commited to accelerating a single inference, making it suitable for low, deterministic latency and real-time applications, while GPUs are well suited for the applications requiring processing many inferences concurrently. The following sections will provide the performance evaluation report with the corresponding metrics and exact numbers, supporting the claims made above. 
 
 ### Latency 
+The inference latency is defined as the time required for an NN input to propagate through to its output. For the given implementation, it is the time for the one image inference to be produced. It does not take into account the image transferring time to the memory via UART and assumes that the images are already stored in the memory (the same is for GPU). In FPGA, the latency time starts at the moment when the NN enter the *STREAM* state after the last image pixel has been written to the scratchpad memory and ends when the out valid flag is asserted, meaning the inference result is ready:
+
+```verilog
+always @(posedge clk) begin
+  if (state_m == M_STREAM && !out_valid)
+    cycle_count <= cycle_count + 1;
+  else if (out_valid) begin
+    $display("Inference took %0d clock cycles", cycle_count);
+    cycle_count <= 0;
+  end
+end
+```
+
+This resulted in one inference taking 893 clock cycles. When the main clock frequency is 100MHz, as discussed earlier, the latency is therefore $\frac{893}{100M} = 8.93us$. This latency of **8.93us** remains constant for all inferences, owing to the deterministic nature of the NN accelerator on *FPGA*. This is because the datapath is fixed and does not have to deal with OS scheduling or shared-memory contention, and every inference traverses exactly the same sequence of pipeline stages in the same number of cycles. The worst-case latency therefore equals the average latency, which cannot be guaranteed on a GPU.
+
+To correctly measure the latency of the NN running on GPU, several caveats have to be taken into account. First, the GPU needs to be warmed up to disregard the time taken for its initialization. Second, we use asynchronism (torch.cuda.Event()) to account for the asynchronous nature of the GPU. If we used Python's *time* library to measure the latency time, the measurements would be performed on the CPU device. Thus, the line of code that stops the timing would be executed before the GPU process had finished, producing inaccurate measurements. Finally, we use torch.cuda.synchronize() to synchronize the host and device (GPU and CPU), so the time recording takes place only after the process running on the GPU is finished. This overcomes the issue of unsynchronized execution.
+
+```python
+def measure_latency():
+    starter, ender = torch.cuda.Event(enable_timing=True), torch.cuda.Event(enable_timing=True)
+    x = torch.randn(1, 784).to(device)
+
+    timings = np.zeros((1000,1))
+
+    with torch.no_grad():
+        # warmup
+        for _ in range(50): _ = model(x)
+        torch.cuda.synchronize()
+        for n in range(1000):
+            starter.record()
+            _ = model(x)
+            ender.record()
+            torch.cuda.synchronize()
+            curr_time = starter.elapsed_time(ender)
+            timings[n] = curr_time * 1000.0 # us
+    
+    mean_syn = np.mean(timings)
+    std_syn = np.std(timings)
+    print(f"Latency: {mean_syn:.2f} us, std={std_syn:.2f} us, median={np.median(timings):.1f} us ")
+    return mean_syn
+```
+
+It is worthy to note that for measuring the latency and throughput, the input values are irrelevant. The trained model that was saved previously, was reloaded for evaluation. This NN performs identical computation regardless of input contents, with no data-dependent branching, so a randomly generated tensor matching the input shape ([batch_size, 784]) was suffice. The result of the inference latency on GPU is **424.89 +- 178.72 us**. 
 
 ### Throughput 
+
+### Power and energy per inference 
 
 ### Resource Utilization
 
