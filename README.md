@@ -410,6 +410,45 @@ def measure_latency():
 It is worthy to note that for measuring the latency and throughput, the input values are irrelevant. The trained model that was saved previously, was reloaded for evaluation. This NN performs identical computation regardless of input contents, with no data-dependent branching, so a randomly generated tensor matching the input shape ([batch_size, 784]) was suffice. The result of the inference latency on GPU is **424.89 +- 178.72 us**. 
 
 ### Throughput 
+Throughput is the maximum number of input instances processed in a unit of time, e.g. in a second. Unlike latency, which involves the processing of a single instance, to achieve maximal throughput we would like to process in parallel as many instances as possible. For the GPU, it is done by increasing parallelism through batching, while for the FPGA - by maximizing the inference rate. 
+
+*For the FPGA*, throughput is the inverse of latency, assuming continuous back-to-back inference:s **$\frac{100M}{893} \approx 112k \  images/s$**. FPGA processes one image at a time, so its throughput is bounded by the compute rate per image rather than by batch parallelism.
+
+In order to correctly measure the *throughput of GPU*, we need to find an *optimal batch size*, when the GPU reaches saturation of parallelism and cannot process a larger number of images. This can be done by increasing the batch size until the Runtime Error OOM occurs. To calculate the throughput, I used $\frac{number of batches \cdot batch size}{total time in seconds}$. For this calculation, I processed 100 batches of different sizes which I doubled until the throughput reached a pleatoe.  
+
+For the GPU, throughput depends on batch size. Small batches leave most cores idle and are dominated by fixed launch overhead, while large batches saturate the cores and amortize that overhead. To find the throughput-maximizing batch size, I doubled the batch size until throughput plateaued, which is the point at which the GPU's parallelism is saturated and larger batches yield no further gain. Throughput was computed as $\frac{number of batches \cdot batch size}{total time in seconds}$, over 100 iterations per batch size. Throughput plateaued at approximately **41.6M images/s**. 
+
+```python
+def measure_throughput(batch_size):
+    starter, ender = torch.cuda.Event(enable_timing=True), torch.cuda.Event(enable_timing=True)
+    x = torch.randn(batch_size, 784).to(device)
+    with torch.no_grad():
+        # warmup
+        for _ in range(50): _ = model(x)
+        torch.cuda.synchronize()
+        total_time = 0.0
+        for n in range(100): 
+            starter.record()
+            _ = model(x)
+            ender.record()
+            torch.cuda.synchronize()
+            curr_time = starter.elapsed_time(ender) / 1000
+            total_time += curr_time
+        thr = (100 * batch_size) / total_time
+    return thr
+
+for bs in [1, 32, 128, 512, 1024, 2048, 4096, 8192, 16384, 32768, 65536, 131072, 262144, 524288, 1048576]:
+    try:
+        print(f"batch={bs}: {measure_throughput(bs):.0f} images/s")
+    except RuntimeError as e:
+        if "out of memory" in str(e).lower():
+            print(f"OOM at batch={bs}")
+            torch.cuda.empty_cache()
+            break
+        raise
+    finally:
+        torch.cuda.empty_cache()
+```
 
 ### Power and energy per inference 
 
