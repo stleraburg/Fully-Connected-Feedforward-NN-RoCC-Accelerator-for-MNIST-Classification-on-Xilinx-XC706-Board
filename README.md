@@ -414,8 +414,6 @@ Throughput is the maximum number of input instances processed in a unit of time,
 
 *For the FPGA*, throughput is the inverse of latency, assuming continuous back-to-back inference:s **$\frac{100M}{893} \approx 112k \  images/s$**. FPGA processes one image at a time, so its throughput is bounded by the compute rate per image rather than by batch parallelism.
 
-In order to correctly measure the *throughput of GPU*, we need to find an *optimal batch size*, when the GPU reaches saturation of parallelism and cannot process a larger number of images. This can be done by increasing the batch size until the Runtime Error OOM occurs. To calculate the throughput, I used $\frac{number of batches \cdot batch size}{total time in seconds}$. For this calculation, I processed 100 batches of different sizes which I doubled until the throughput reached a pleatoe.  
-
 For the GPU, throughput depends on batch size. Small batches leave most cores idle and are dominated by fixed launch overhead, while large batches saturate the cores and amortize that overhead. To find the throughput-maximizing batch size, I doubled the batch size until throughput plateaued, which is the point at which the GPU's parallelism is saturated and larger batches yield no further gain. Throughput was computed as $\frac{number of batches \cdot batch size}{total time in seconds}$, over 100 iterations per batch size. Throughput plateaued at approximately **41.6M images/s**. 
 
 ```python
