@@ -449,6 +449,66 @@ for bs in [1, 32, 128, 512, 1024, 2048, 4096, 8192, 16384, 32768, 65536, 131072,
 ```
 
 ### Power and energy per inference 
+The instantaneous power of both devices is estimated while they're under operating conditions (i.e. actively making inferences). One caveat here is which batch size to use to evaluate powerconsumption of the GPU? For FPGA, it is crystal clear as we always use the batch size of 1 (streamed inference), as the datapath is not designed to process multiple images at once. GPU, however, can operate at 1, multiple, or saturating batch sizes. Two comparisons are therefore meaningful: 1) *native* condition - FPGA processing images one by one, while GPU taking the batch size where its throughput saturates and its parallel cores are fully utilized; and 2) *matched* condition - when GPU runs inference on batch size = 1, though most inefficient usage, but it is the only setting in which both devices perform identical work (classifying a single image), making it the true like-for-like comparison and the one relevant to real-time, single-image inference.
+
+For FPGA, the power estimate is taken from Vivado's post-implementation power report:
+<img width="689" height="346" alt="image" src="https://github.com/user-attachments/assets/7a6460a7-a215-4e97-b38e-a72ec95261a3" />
+
+From this report, it can be seen that the total on-chip power constitutes **0.544W**, with its dynamic power of 0.336W (when FPGA actively runs and signals switch) and static power of 0.207W (baseline leakage power drawn just by having the powered chip turned on - comparable with GPU's idle power). 
+
+For GPU, it is measured using the *nvidia-smi* under sustained load. Because nvidia-smi reports only the instantaneous power at each query, and its reporting rate is lower than the rate at which the model produces predictions, the model is run continuously for 10 s so the driver can capture power while the GPU is active. A backround thread is created which samples the power while the model is busy with predictions at the specifid batch size. 
+
+```python
+def sample_power(stop_event, samples, timestamps, interval=0.05):
+    while not stop_event.is_set():
+        out = subprocess.check_output(['nvidia-smi', '--query-gpu=power.draw', '--format=csv,noheader,nounits'])
+        samples.append(float(out.decode().strip()))
+        timestamps.append(time.time())
+        time.sleep(interval)
+
+def measure_power(batch_size=65536, duration_s=10):
+    x = torch.randn(batch_size, 784).to(device)
+    with torch.no_grad():
+        for _ in range(50): _ = model(x)
+        torch.cuda.synchronize()
+    
+    #start power sampling in a background thread
+    stop = threading.Event()
+    samples, timestamps = [], []
+    sampler = threading.Thread(target=sample_power, args=(stop, samples, timestamps))
+    sampler.start()
+    count = 0
+
+    # inference load 
+    t_end = time.time() + duration_s
+    with torch.no_grad():
+        while time.time() < t_end:
+            _ = model(x)
+            count += batch_size
+        torch.cuda.synchronize()
+
+    stop.set()
+    sampler.join()
+
+    p = np.array(samples)
+    t = np.array(timestamps)
+    total_energy = np.trapezoid(p, t)
+
+    energy_per_inference = total_energy / count
+    return p.mean(), energy_per_inference
+```
+
+For batch size of 65536 (at which the throuphput is plateaued), the mean power is **259.3 W**. The idle power was also measured - 63.1 W. So, the dynamic (inference) power is the difference between the two, constituting 196.1 W. At batch size 1, the mean power is **54.6 W**. This estimation is less than the GPU's idle power, indicating that single-image inference does not load the GPU above its baseline, the device is overhead-bound and its parallel cores sit largely unused. 
+
+The **energy per inference** provides a comparable comparison of the two devices' performances, since it shows a normalized measure of the energy cost of a single classification, independent of the operating point. It is computed by integrating the sampled power over time and dividing by the number of inferences processed. Equivalently, it can be calculated as power divided by throughput, or power multiplied by the time spent per image. 
+
+For FPGA, the energy per inference is $0.544 \ W \cdot 8.93 \ us = $ **4.85 uJ / inf**. 
+
+For the GPU: at batch size 65536 (native), **5.89 uJ/inference**; at batch size 1 (matched), **13.69 mJ/inference**. 
+
+This result confirms that GPUs are least efficient when operating on batch size of 1, while at its optimal workload the energy performance is comparable with the one of FPGA's. 
+
+These results show that the GPU is least efficient at batch size 1 (by ~2,800 times relative to the FPGA) because at this size its parallel cores are largely idle and the fixed overhead dominates. Only at large, saturating batches does the GPU's energy efficiency approach the FPGA's (5.89 uJ vs 4.86 uJ). Crucially, the FPGA achieves this efficiency at batch size 1 with low, deterministic latency, whereas the GPU reaches comparable efficiency only by processing tens of thousands of images in parallel — a regime unsuited to real-time inferences such as tactile slip detection or a single image predicion. For the workload the FPGA is designed for, it is therefore roughly three orders of magnitude more energy-efficient than the GPU.
 
 ### Resource Utilization
 
