@@ -502,15 +502,16 @@ For batch size of 65536 (at which the throuphput is plateaued), the mean power i
 
 The **energy per inference** provides a comparable comparison of the two devices' performances, since it shows a normalized measure of the energy cost of a single classification, independent of the operating point. It is computed by integrating the sampled power over time and dividing by the number of inferences processed. Equivalently, it can be calculated as power divided by throughput, or power multiplied by the time spent per image. 
 
-For FPGA, the energy per inference is $0.544 \ W \cdot 8.93 \ us = $ **4.85 uJ / inf**. 
+For FPGA, the energy per inference is $0.544 \ W \cdot 8.93 \ us =$ **4.85 uJ / inf**. 
 
-For the GPU: at batch size 65536 (native), **5.89 uJ/inference**; at batch size 1 (matched), **13.69 mJ/inference**. 
-
-This result confirms that GPUs are least efficient when operating on batch size of 1, while at its optimal workload the energy performance is comparable with the one of FPGA's. 
+For the GPU, at batch size 65536, **5.89 uJ/inference**; at batch size 1, **13.69 mJ/inference**. 
 
 These results show that the GPU is least efficient at batch size 1 (by ~2,800 times relative to the FPGA) because at this size its parallel cores are largely idle and the fixed overhead dominates. Only at large, saturating batches does the GPU's energy efficiency approach the FPGA's (5.89 uJ vs 4.86 uJ). Crucially, the FPGA achieves this efficiency at batch size 1 with low, deterministic latency, whereas the GPU reaches comparable efficiency only by processing tens of thousands of images in parallel — a regime unsuited to real-time inferences such as tactile slip detection or a single image predicion. For the workload the FPGA is designed for, it is therefore roughly three orders of magnitude more energy-efficient than the GPU.
 
 ### Resource Utilization
+<img width="533" height="490" alt="image" src="https://github.com/user-attachments/assets/eea7ac37-92cc-4eda-b38e-8d92a314802c" />
+
+The report shows that the design occupies a small fraction of the device. Notably, DSP slices are the dominant resource, where 160 out of 900 are consumed by 80 neurons (30+30+10+10) - approx two per neuron. This is expected since the MAC operation is core in the neural network implementation. This result motivates the *systolic array architecture* to be explored since it is expected to optimize the resource utilization, in particular, the DSPs as these are currently allocated proportionally to the neuron count and are the constraint that would limit scaling to larger networks.
 
 ### Accuracy 
 
