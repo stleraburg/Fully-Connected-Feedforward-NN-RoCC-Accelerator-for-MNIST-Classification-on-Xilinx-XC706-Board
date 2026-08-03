@@ -498,15 +498,15 @@ def measure_power(batch_size=65536, duration_s=10):
     return p.mean(), energy_per_inference
 ```
 
-For batch size of 65536 (at which the throuphput is plateaued), the mean power is **259.3 W**. The idle power was also measured - 63.1 W. So, the dynamic (inference) power is the difference between the two, constituting 196.1 W. At batch size 1, the mean power is **54.6 W**. This estimation is less than the GPU's idle power, indicating that single-image inference does not load the GPU above its baseline, the device is overhead-bound and its parallel cores sit largely unused. 
+For batch size of 65536 (at which the throuphput is plateaued), the mean power is **258.9 W**. The idle power was also measured - 27.1 W. So, the dynamic (inference) power is the difference between the two, constituting 231.8 W. At batch size 1, the mean power is **54.9 W**. This estimation is less than the GPU's idle power, indicating that single-image inference does not load the GPU above its baseline, the device is overhead-bound and its parallel cores sit largely unused. 
 
 The **energy per inference** provides a comparable comparison of the two devices' performances, since it shows a normalized measure of the energy cost of a single classification, independent of the operating point. It is computed by integrating the sampled power over time and dividing by the number of inferences processed. Equivalently, it can be calculated as power divided by throughput, or power multiplied by the time spent per image. 
 
 For FPGA, the energy per inference is $0.544 \ W \cdot 8.93 \ us =$ **4.85 uJ / inf**. 
 
-For the GPU, at batch size 65536, **5.89 uJ/inference**; at batch size 1, **13.69 mJ/inference**. 
+For the GPU, at batch size 65536, **6.13 uJ/inference**; at batch size 1, **13.29 mJ/inference**. 
 
-These results show that the GPU is least efficient at batch size 1 (by ~2,800 times relative to the FPGA) because at this size its parallel cores are largely idle and the fixed overhead dominates. Only at large, saturating batches does the GPU's energy efficiency approach the FPGA's (5.89 uJ vs 4.86 uJ). Crucially, the FPGA achieves this efficiency at batch size 1 with low, deterministic latency, whereas the GPU reaches comparable efficiency only by processing tens of thousands of images in parallel — a regime unsuited to real-time inferences such as tactile slip detection or a single image predicion. For the workload the FPGA is designed for, it is therefore roughly three orders of magnitude more energy-efficient than the GPU.
+These results show that the GPU is least efficient at batch size 1 (by ~2,800 times relative to the FPGA) because at this size its parallel cores are largely idle and the fixed overhead dominates. Only at large, saturating batches does the GPU's energy efficiency approach the FPGA's (6.13 uJ vs 4.86 uJ). Crucially, the FPGA achieves this efficiency at batch size 1 with low, deterministic latency, whereas the GPU reaches comparable efficiency only by processing tens of thousands of images in parallel — a regime unsuited to real-time inferences such as tactile slip detection or a single image predicion. For the workload the FPGA is designed for, it is therefore roughly three orders of magnitude more energy-efficient than the GPU.
 
 ### Resource Utilization
 <img width="533" height="490" alt="image" src="https://github.com/user-attachments/assets/eea7ac37-92cc-4eda-b38e-8d92a314802c" />
@@ -514,6 +514,47 @@ These results show that the GPU is least efficient at batch size 1 (by ~2,800 ti
 The report shows that the design occupies a small fraction of the device. Notably, DSP slices are the dominant resource, where 160 out of 900 are consumed by 80 neurons (30+30+10+10) - approx two per neuron. This is expected since the MAC operation is core in the neural network implementation. This result motivates the *systolic array architecture* to be explored since it is expected to optimize the resource utilization, in particular, the DSPs as these are currently allocated proportionally to the neuron count and are the constraint that would limit scaling to larger networks.
 
 ### Accuracy 
+I finalize the performance comparison with the metrics that is among the most relevant for neural network models - *accuracy*. The GPU (float32) yielded the accuracy of **95.92 \%** on 10,000 test images.
+For FPG, simulating the full UART interface for 10,000 images was infeasible (it would take several days). Instead, I wrote a testing, simulation-only FSM that streams images preloaded directly into the scratchpad memory. For this, the depth of the scratchpad was increased to hold all 10,000 images. The FSM that I used for testing: 
+
+```verilog
+always @ (posedge clk) begin 
+        if (reset) begin 
+            im_count <= 0;
+            r_addr <= 0;
+            pixel_valid_prev <= 0;
+            state_m <= M_STREAM;
+        end
+        else begin 
+            case(state_m) 
+                M_IDLE : begin 
+                    pixel_valid_prev <= 0;
+                end 
+                M_STREAM : begin
+                    if (out_valid) begin
+                        state_m <= M_RESULT;
+                        r_addr <= 0;
+                   end else if (r_addr == imageSize) begin 
+                        pixel_valid_prev <= 0;
+                   end else begin 
+                        r_addr <= r_addr + 1;
+                        pixel_valid_prev <= 1;
+                   end
+                end
+                M_RESULT : begin 
+                    pixel_valid_prev <= 0;
+                    if (im_count == `numTestImages-1) begin
+                        state_m <= M_IDLE;
+                    end else begin 
+                        im_count <= im_count + 1;
+                        state_m <= M_STREAM;
+                    end
+                end
+            endcase
+        end
+    end   
+```
+The FPGA achieved **91.15%**. This gap, compared to GPU's **95.92 \%**, depics the effect of the 16-bit fixed-point quantization that I applied to inputs, weights, and activations. Although this practice contributed to the reducing latency and memory footprint, it also reduces numerical precision and, thus, lowering accuracy relative to the floating-point GPU implementation. 
 
 ## Acknowledgements
 I would like to mention [Vipin Kizheppatt's tutrorials](https://github.com/vipinkmenon/neuralNetwork) and the [courses by EcrioniX](https://ecrionix.org/) that I used to develop this project.
