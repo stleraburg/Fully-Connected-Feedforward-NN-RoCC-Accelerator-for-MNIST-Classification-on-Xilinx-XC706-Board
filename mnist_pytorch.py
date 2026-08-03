@@ -240,6 +240,6 @@ data = {
         'cost': 'CrossEntropyCost'
     }
 
-# with open ('C:/Users/stleraburg/Desktop/nnFPGA_mnist/WeightsAndBiases_2.txt', 'w') as f:
+# with open ('WeightsAndBiases.txt', 'w') as f:
 #     json.dump(data, f)
 # print("Saved.")
